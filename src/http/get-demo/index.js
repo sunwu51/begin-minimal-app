@@ -1,11 +1,39 @@
-// Enable secure sessions, express-style middleware, and more:
-// https://docs.begin.com/en/functions/http/
-//
-// let begin = require('@architect/functions')
+// Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
+var MongoClient = require('mongodb').MongoClient;
+var pass = process.env.PASS;
+var url = `mongodb://admin:${pass}@ds064299.mlab.com:64299/db1`
+var conn = function(url){
+  return new Promise((resolve,reject)=>{
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+      if (err) reject(err);
+      else resolve(db);
+    })
+  })
+}
+var toArray = function(data){
+  return new Promise((resolve,reject)=>{
+    data.toArray((err,res)=>{
+      if(err)reject(err)
+      else resolve(res);
+    })
+  })
+}
 
-let html = `
-hello
-`
+exports.handler = async (event, context) => {
+  try {
+    var con = await conn(url);
+    var db = con.db('db1');
+    var col = db.collection('test');
+    var res = await toArray(col.find({}));
+    return {
+      statusCode: 200,
+      body: JSON.stringify(res)
+    }
+  } catch (err) {
+    return { statusCode: 500, body: err.toString() }
+  }
+}
+
 
 // HTTP function
 exports.handler = async function http(req) {
@@ -14,10 +42,24 @@ exports.handler = async function http(req) {
   // path
   // headers
   console.log(req)
-  return {
-    headers: {
-      'content-type': 'text/html; charset=utf8'
-    },
-    body: html
+  
+  try {
+    var con = await conn(url);
+    var db = con.db('db1');
+    var col = db.collection('test');
+    var res = await toArray(col.find({}));
+    return {
+      statusCode: 200,
+      body: JSON.stringify(res)
+    }
+  } catch (err) {
+    return { statusCode: 500, body: err.toString() }
   }
+  
+//   return {
+//     headers: {
+//       'content-type': 'text/html; charset=utf8'
+//     },
+//     body: html
+//   }
 }
