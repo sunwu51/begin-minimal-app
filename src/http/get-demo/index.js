@@ -9,6 +9,10 @@ hello
 
 // HTTP function
 exports.handler = async function http(req) {
+  // queryStringParameters 
+  // body
+  // path
+  // headers
   console.log(req)
   return {
     headers: {
