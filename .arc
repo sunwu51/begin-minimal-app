@@ -4,7 +4,7 @@ dance-0xr
 @static
 
 @http
-
+get /demo
 
 @tables
 data
